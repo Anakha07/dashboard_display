@@ -1,0 +1,93 @@
+//
+
+
+<!DOCTYPE HTML>
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+      <script
+         src="https://code.jquery.com/jquery-2.1.1.min.js"
+         integrity="sha256-h0cGsrExGgcZtSZ/fRz4AwV+Nn6Urh/3v3jFRQ0w9dQ="
+         crossorigin="anonymous"></script>
+      <script type="text/javascript">
+         $(document).ready(function () {
+
+         	$.ajax({
+         		type: "GET",
+         		url:"issues.csv",
+         		dataType: "text",
+         		success: function(data) {processData(data);}
+         	});
+
+         	function processData( allText ) {
+         		var allLinesArray = allText.split("\n");
+         		if( allLinesArray.length > 0 ){
+         			var dataPoints = [];
+               var rset=[];//unique product names
+         			for (var i = 1; i <= allLinesArray.length-1; i++) {
+         				var rowData = allLinesArray[i].split(",");
+                 var l=rowData.length;
+
+
+                 var counts = {};//to find occurrence of an element in the allLinesArray
+
+
+               //  console.log(rowData[l-1]);
+               RemoveDuplicate(rowData[l-1]);
+               function RemoveDuplicate(arr){
+
+                 for(var i = 0; i < arr.length; i++){
+                   if(rset.indexOf(arr) == -1){
+                   rset.push(arr);
+                   }
+               }
+
+
+             }//end of function removeduplicate
+
+
+
+           }//end of for loop that is used to collect the product names. Looping thru each line
+              //console.log(counts);
+               for (x=0;x<rset.length;x++){
+                 console.log(rset[x]);
+                 dataPoints.push({ label:rset[x], y:parseInt(rowData[1]) });
+               }
+
+         			drawChart(dataPoints);
+         		}
+         	}
+
+         	function drawChart( dataPoints) {
+         		var chart = new CanvasJS.Chart("chartContainer", {
+         			title:{
+         				text: "Product Feature-Tickets"
+         			},
+         			axisX:{
+         				labelAngle: 120,
+         				labelWrap:true,
+         				labelAutoFit: true,
+         				labelFontSize: 15,
+         				labelMaxWidth: 100,
+         				labelFontColor: "black"
+         			},
+         			data: [
+         			{
+         				indexLabelPlacement: "outside",
+         				indexLabelFontWeight: "bold",
+         				indexLabelFontColor: "black",
+         				type: "column",
+         				dataPoints: dataPoints
+         			}
+         			]
+         		});
+         		chart.render();
+         	}
+         });
+      </script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/canvasjs/1.7.0/canvasjs.min.js"></script>
+   </head>
+   <body style="background-color: #ADB68B; background-image:url(../Images/bg_body_new.png); background-repeat: repeat-x;text-align:center">
+      <div id="chartContainer" style="height: 300px; width: 100%;  background-repeat:no-repeat; background-position:center; background-size:100% 100%"></div>
+   </body>
+</html>
