@@ -1,93 +1,117 @@
-//
+<!-- //Method  used retrieve the product names out of the csv file:
+  As the occurrence of the product is at the **end** of each row,
+  it is fetched likewise -->
 
 
 <!DOCTYPE HTML>
 <html>
-   <head>
-      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-      <script
-         src="https://code.jquery.com/jquery-2.1.1.min.js"
-         integrity="sha256-h0cGsrExGgcZtSZ/fRz4AwV+Nn6Urh/3v3jFRQ0w9dQ="
-         crossorigin="anonymous"></script>
-      <script type="text/javascript">
-         $(document).ready(function () {
 
-         	$.ajax({
-         		type: "GET",
-         		url:"issues.csv",
-         		dataType: "text",
-         		success: function(data) {processData(data);}
-         	});
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <script src="https://code.jquery.com/jquery-2.1.1.min.js" integrity="sha256-h0cGsrExGgcZtSZ/fRz4AwV+Nn6Urh/3v3jFRQ0w9dQ=" crossorigin="anonymous"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
 
-         	function processData( allText ) {
-         		var allLinesArray = allText.split("\n");
-         		if( allLinesArray.length > 0 ){
-         			var dataPoints = [];
-               var rset=[];//unique product names
-         			for (var i = 1; i <= allLinesArray.length-1; i++) {
-         				var rowData = allLinesArray[i].split(",");
-                 var l=rowData.length;
+      $.ajax({
+        type: "GET",
+        url: "issues.csv",
+        dataType: "text",
+        success: function(data) {
+          processData(data);
+        }
+      });
 
-
-                 var counts = {};//to find occurrence of an element in the allLinesArray
-
-
-               //  console.log(rowData[l-1]);
-               RemoveDuplicate(rowData[l-1]);
-               function RemoveDuplicate(arr){
-
-                 for(var i = 0; i < arr.length; i++){
-                   if(rset.indexOf(arr) == -1){
-                   rset.push(arr);
-                   }
-               }
+      function processData(allText) {
+        var allLinesArray = allText.split("\n");
+        if (allLinesArray.length > 0) {
+          var dataPoints = []; //x and y coordinates
+          var names = []; //List of all product names with redundancy
+          var rset = []; //distinct product names
+          for (var i = 1; i <= allLinesArray.length - 1; i++) {
+            var rowData = allLinesArray[i].split(",");
+            var l = rowData.length;
+            //to find occurrence of an element in the allLinesArray
+            names.push(rowData[l - 1]);
 
 
-             }//end of function removeduplicate
+            //  console.log(rowData[l-1]);
+            RemoveDuplicate(rowData[l - 1]);
+
+            function RemoveDuplicate(arr) {
+
+              for (var i = 0; i < arr.length; i++) {
+                if (rset.indexOf(arr) == -1) {
+                  rset.push(arr);
+                }
+              }
+
+
+            } //end of function removeduplicates
 
 
 
-           }//end of for loop that is used to collect the product names. Looping thru each line
-              //console.log(counts);
-               for (x=0;x<rset.length;x++){
-                 console.log(rset[x]);
-                 dataPoints.push({ label:rset[x], y:parseInt(rowData[1]) });
-               }
+          } //end of for loop that is used to collect the product names. Looping thru each line
 
-         			drawChart(dataPoints);
-         		}
-         	}
 
-         	function drawChart( dataPoints) {
-         		var chart = new CanvasJS.Chart("chartContainer", {
-         			title:{
-         				text: "Product Feature-Tickets"
-         			},
-         			axisX:{
-         				labelAngle: 120,
-         				labelWrap:true,
-         				labelAutoFit: true,
-         				labelFontSize: 15,
-         				labelMaxWidth: 100,
-         				labelFontColor: "black"
-         			},
-         			data: [
-         			{
-         				indexLabelPlacement: "outside",
-         				indexLabelFontWeight: "bold",
-         				indexLabelFontColor: "black",
-         				type: "column",
-         				dataPoints: dataPoints
-         			}
-         			]
-         		});
-         		chart.render();
-         	}
-         });
-      </script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/canvasjs/1.7.0/canvasjs.min.js"></script>
-   </head>
-   <body style="background-color: #ADB68B; background-image:url(../Images/bg_body_new.png); background-repeat: repeat-x;text-align:center">
-      <div id="chartContainer" style="height: 300px; width: 100%;  background-repeat:no-repeat; background-position:center; background-size:100% 100%"></div>
-   </body>
+          var count = {};
+          names.forEach(function(el) {
+            count[el] = count[el] + 1 || 1
+          }); //Function to count the frequency of occurrence of an element
+
+          //console.log(count);
+          // console.log(Object.values(count));
+          //console.log(count)
+          var array_values = new Array();
+          for (var key in count) {
+            array_values.push(count[key]);
+          }
+          //console.log(array_values);
+
+
+
+
+          for (x = 0; x < rset.length; x++) {
+            //console.log(rset[x]);
+            dataPoints.push({
+              label: rset[x],
+              y: array_values[x]
+            });//X-Y values used for drawing the chart
+          }
+
+          drawChart(dataPoints);
+        }
+      }
+
+      function drawChart(dataPoints) {
+        var chart = new CanvasJS.Chart("chartContainer", {
+          title: {
+            text: "Product Feature-Tickets"
+          },
+          axisX: {
+            labelAngle: 120,
+            labelWrap: true,
+            labelAutoFit: true,
+            labelFontSize: 15,
+            labelMaxWidth: 100,
+            labelFontColor: "black"
+          },
+          data: [{
+            indexLabelPlacement: "outside",
+            indexLabelFontWeight: "bold",
+            indexLabelFontColor: "black",
+            type: "column",
+            dataPoints: dataPoints
+          }]
+        });
+        chart.render();
+      }
+    });
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/canvasjs/1.7.0/canvasjs.min.js"></script>
+</head>
+
+<body style="background-color: #ADB68B; background-image:url(../Images/bg_body_new.png); background-repeat: repeat-x;text-align:center">
+  <div id="chartContainer" style="height: 300px; width: 100%;  background-repeat:no-repeat; background-position:center; background-size:100% 100%"></div>
+</body>
+
 </html>
